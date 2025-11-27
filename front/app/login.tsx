@@ -43,7 +43,7 @@ export default function Login() {
           {/* Header Section */}
           <View className="mb-12">
             <Text className="text-5xl font-bold text-gray-800 mb-2">
-              Welcome Back! 👋
+              FOODIE
             </Text>
             <Text className="text-lg text-gray-600">
               Sign in to continue to Foodie
@@ -55,7 +55,7 @@ export default function Login() {
             {/* Email Input */}
             <View>
               <Text className="text-sm font-semibold text-gray-700 mb-2 ml-1">
-                Email Address
+                Username
               </Text>
               <View
                 className={`bg-white rounded-2xl px-5 py-4 shadow-sm border-2 ${
