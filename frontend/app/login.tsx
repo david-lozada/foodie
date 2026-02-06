@@ -1,191 +1,292 @@
-import { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  Pressable,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Animated,
-} from "react-native";
+import React, { useState } from "react";
+import { KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { Ionicons } from "@expo/vector-icons";
+import {
+  YStack,
+  XStack,
+  Text,
+  Circle,
+  Button,
+  Input,
+  Label,
+  Spinner,
+  useTheme,
+  Theme,
+} from "tamagui";
+import { useColorScheme } from "@/hooks/use-color-scheme";
 
-export default function Login() {
+export default function LoginScreen() {
+  const colorScheme = useColorScheme();
+  const theme = useTheme();
   const router = useRouter();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const [focusedInput, setFocusedInput] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [emailFocused, setEmailFocused] = useState(false);
+  const [passwordFocused, setPasswordFocused] = useState(false);
 
-  const handleLogin = () => {
-    console.log("🔐 Login attempt:", { email, password: "***" });
-    // Add your login logic here
-    router.push("/");
-  };
-
-  const handleSignUp = () => {
-    console.log("📝 Navigate to sign up");
-    // Navigate to sign up screen
+  const handleLogin = async () => {
+    setIsLoading(true);
+    // TODO: Implement actual login logic
+    setTimeout(() => {
+      setIsLoading(false);
+      console.log("Login:", { email, password });
+    }, 1500);
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className="flex-1"
-    >
-      <ScrollView
-        contentContainerStyle={{ flexGrow: 1 }}
-        keyboardShouldPersistTaps="handled"
-        className="flex-1 bg-gradient-to-b from-primary-100 to-primary-200"
+    <Theme name={colorScheme ?? "light"}>
+      <KeyboardAvoidingView
+        style={{ flex: 1, backgroundColor: theme.background?.get() }}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        <View className="flex-1 justify-center px-6 py-12">
-          {/* Header Section */}
-          <View className="mb-12">
-            <Text className="text-5xl font-bold text-gray-800 mb-2">
-              FOODIE
-            </Text>
-            <Text className="text-lg text-gray-600">
-              Sign in to continue to Foodie
-            </Text>
-          </View>
+        <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1 }}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          {/* Header Section with Brand */}
+          <YStack
+            paddingTop={Platform.OS === "ios" ? 60 : 40}
+            paddingHorizontal="$8"
+            paddingBottom="$12"
+            backgroundColor="$primary"
+            borderTopLeftRadius="$8"
+            borderTopRightRadius="$8"
+            borderBottomLeftRadius="$8"
+            borderBottomRightRadius="$8"
+          >
+            <Button
+              size="$3"
+              circular
+              backgroundColor="rgba(255, 255, 255, 0.2)"
+              icon={<Ionicons name="arrow-back" size={24} color="#FFFFFF" />}
+              onPress={() => router.back()}
+              marginBottom="$5"
+              pressStyle={{ backgroundColor: "rgba(255, 255, 255, 0.3)" }}
+            />
+
+            <YStack alignItems="center" marginBottom="$4">
+              <Circle
+                size={80}
+                backgroundColor="rgba(255, 255, 255, 0.95)"
+                justifyContent="center"
+                alignItems="center"
+                marginBottom="$4"
+                elevation="$4"
+              >
+                <Text
+                  fontSize={32}
+                  fontWeight="900"
+                  color="$primary"
+                  letterSpacing={-1}
+                >
+                  F
+                </Text>
+                <Circle
+                  size={8}
+                  backgroundColor="$brandCoral"
+                  position="absolute"
+                  top={12}
+                  right={12}
+                />
+              </Circle>
+              <Text
+                fontSize={32}
+                fontWeight="800"
+                color="#FFFFFF"
+                marginBottom="$1"
+                textAlign="center"
+              >
+                Welcome Back!
+              </Text>
+              <Text
+                fontSize={16}
+                color="rgba(255, 255, 255, 0.9)"
+                textAlign="center"
+                fontWeight="500"
+              >
+                Sign in to continue your foodie journey
+              </Text>
+            </YStack>
+          </YStack>
 
           {/* Form Section */}
-          <View className="space-y-5">
+          <YStack flex={1} paddingHorizontal="$8" paddingTop="$10">
             {/* Email Input */}
-            <View>
-              <Text className="text-sm font-semibold text-gray-700 mb-2 ml-1">
-                Username
-              </Text>
-              <View
-                className={`bg-white rounded-2xl px-5 py-4 shadow-sm border-2 ${
-                  focusedInput === "email"
-                    ? "border-secondary-200"
-                    : "border-transparent"
-                }`}
+            <YStack marginBottom="$4">
+              <Label
+                fontSize={14}
+                fontWeight="600"
+                color="$color"
+                marginBottom="$2"
+                marginLeft="$1"
               >
-                <TextInput
-                  placeholder="your.email@example.com"
-                  placeholderTextColor="#9ca3af"
+                Email Address
+              </Label>
+              <XStack
+                alignItems="center"
+                backgroundColor="$backgroundStrong"
+                borderRadius="$3"
+                borderWidth={2}
+                borderColor={emailFocused ? "$primary" : "$borderColor"}
+                paddingHorizontal="$4"
+                height={56}
+                elevation="$1"
+              >
+                <Ionicons
+                  name="mail-outline"
+                  size={20}
+                  color={
+                    emailFocused
+                      ? theme.primary?.get()
+                      : theme.placeholderColor?.get()
+                  }
+                />
+                <Input
+                  flex={1}
+                  fontSize={16}
+                  color="$color"
+                  placeholder="you@example.com"
+                  placeholderTextColor="$placeholderColor"
+                  borderWidth={0}
+                  backgroundColor="transparent"
                   value={email}
                   onChangeText={setEmail}
-                  onFocus={() => setFocusedInput("email")}
-                  onBlur={() => setFocusedInput(null)}
-                  keyboardType="email-address"
+                  onFocus={() => setEmailFocused(true)}
+                  onBlur={() => setEmailFocused(false)}
                   autoCapitalize="none"
-                  autoComplete="email"
-                  className="text-base text-gray-800"
+                  keyboardType="email-address"
                 />
-              </View>
-            </View>
+              </XStack>
+            </YStack>
 
             {/* Password Input */}
-            <View>
-              <Text className="text-sm font-semibold text-gray-700 mb-2 ml-1">
-                Password
-              </Text>
-              <View
-                className={`bg-white rounded-2xl px-5 py-4 shadow-sm border-2 flex-row items-center ${
-                  focusedInput === "password"
-                    ? "border-secondary-200"
-                    : "border-transparent"
-                }`}
+            <YStack marginBottom="$2">
+              <Label
+                fontSize={14}
+                fontWeight="600"
+                color="$color"
+                marginBottom="$2"
+                marginLeft="$1"
               >
-                <TextInput
+                Password
+              </Label>
+              <XStack
+                alignItems="center"
+                backgroundColor="$backgroundStrong"
+                borderRadius="$3"
+                borderWidth={2}
+                borderColor={passwordFocused ? "$primary" : "$borderColor"}
+                paddingHorizontal="$4"
+                height={56}
+                elevation="$1"
+              >
+                <Ionicons
+                  name="lock-closed-outline"
+                  size={20}
+                  color={
+                    passwordFocused
+                      ? theme.primary?.get()
+                      : theme.placeholderColor?.get()
+                  }
+                />
+                <Input
+                  flex={1}
+                  fontSize={16}
+                  color="$color"
                   placeholder="Enter your password"
-                  placeholderTextColor="#9ca3af"
+                  placeholderTextColor="$placeholderColor"
+                  borderWidth={0}
+                  backgroundColor="transparent"
                   value={password}
                   onChangeText={setPassword}
-                  onFocus={() => setFocusedInput("password")}
-                  onBlur={() => setFocusedInput(null)}
-                  secureTextEntry={!isPasswordVisible}
+                  onFocus={() => setPasswordFocused(true)}
+                  onBlur={() => setPasswordFocused(false)}
+                  secureTextEntry={!showPassword}
                   autoCapitalize="none"
-                  autoComplete="password"
-                  className="flex-1 text-base text-gray-800"
                 />
-                <Pressable
-                  onPress={() => setIsPasswordVisible(!isPasswordVisible)}
-                  className="ml-2"
-                >
-                  {({ pressed }) => (
-                    <Text
-                      className={`text-sm font-medium ${pressed ? "text-gray-700" : "text-gray-500"}`}
-                    >
-                      {isPasswordVisible ? "Hide" : "Show"}
-                    </Text>
-                  )}
-                </Pressable>
-              </View>
-            </View>
+                <Button
+                  chromeless
+                  size="$3"
+                  icon={
+                    <Ionicons
+                      name={showPassword ? "eye-outline" : "eye-off-outline"}
+                      size={20}
+                      color={theme.placeholderColor?.get()}
+                    />
+                  }
+                  onPress={() => setShowPassword(!showPassword)}
+                />
+              </XStack>
+            </YStack>
 
             {/* Forgot Password */}
-            <Pressable className="self-end">
-              {({ pressed }) => (
-                <Text
-                  className={`font-semibold text-sm ${pressed ? "text-secondary-100" : "text-secondary-200"}`}
-                >
-                  Forgot Password?
-                </Text>
-              )}
-            </Pressable>
+            <Button
+              alignSelf="flex-end"
+              chromeless
+              padding={0}
+              marginBottom="$6"
+              onPress={() => {}}
+            >
+              <Text fontSize={14} color="$primary" fontWeight="600">
+                Forgot Password?
+              </Text>
+            </Button>
 
             {/* Login Button */}
-            <Pressable onPress={handleLogin} className="shadow-lg mt-4">
-              {({ pressed }) => (
-                <View
-                  className={`rounded-2xl py-4 ${pressed ? "bg-secondary-100" : "bg-secondary-200"}`}
+            <Button
+              backgroundColor="$primary"
+              height={56}
+              borderRadius="$3"
+              disabled={isLoading}
+              onPress={handleLogin}
+              pressStyle={{ backgroundColor: "$primaryHover", scale: 0.98 }}
+              elevation="$4"
+              opacity={isLoading ? 0.6 : 1}
+            >
+              {isLoading ? (
+                <Spinner color="#FFFFFF" size="small" />
+              ) : (
+                <Text
+                  color="#FFFFFF"
+                  fontSize={18}
+                  fontWeight="700"
+                  letterSpacing={0.5}
                 >
-                  <Text className="text-white text-center font-bold text-lg">
-                    Sign In
-                  </Text>
-                </View>
+                  Sign In
+                </Text>
               )}
-            </Pressable>
+            </Button>
 
-            {/* Divider */}
-            <View className="flex-row items-center my-6">
-              <View className="flex-1 h-px bg-gray-300" />
-              <Text className="mx-4 text-gray-500 font-medium">
-                or continue with
+            {/* Register Link */}
+            <XStack
+              justifyContent="center"
+              alignItems="center"
+              paddingVertical="$6"
+              gap="$1"
+            >
+              <Text fontSize={15} color="$color" opacity={0.7} fontWeight="500">
+                Don't have an account?
               </Text>
-              <View className="flex-1 h-px bg-gray-300" />
-            </View>
-
-            {/* Social Login Buttons */}
-            <View className="flex-row gap-4">
-              <Pressable className="flex-1">
-                {({ pressed }) => (
-                  <View
-                    className={`bg-white rounded-2xl py-4 shadow-sm border border-gray-200 ${pressed ? "opacity-70" : "opacity-100"}`}
-                  >
-                    <Text className="text-center font-semibold text-gray-700">
-                      🍎 Apple
-                    </Text>
-                  </View>
-                )}
-              </Pressable>
-              <Pressable className="flex-1">
-                {({ pressed }) => (
-                  <View
-                    className={`bg-white rounded-2xl py-4 shadow-sm border border-gray-200 ${pressed ? "opacity-70" : "opacity-100"}`}
-                  >
-                    <Text className="text-center font-semibold text-gray-700">
-                      🔍 Google
-                    </Text>
-                  </View>
-                )}
-              </Pressable>
-            </View>
-          </View>
-
-          {/* Sign Up Link */}
-          <View className="flex-row justify-center mt-8">
-            <Text className="text-gray-600 text-base">
-              Don't have an account?{" "}
-            </Text>
-          </View>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+              <Button
+                chromeless
+                padding={0}
+                onPress={() => router.push("/register" as any)}
+              >
+                <Text fontSize={15} color="$primary" fontWeight="700">
+                  Sign Up
+                </Text>
+              </Button>
+            </XStack>
+          </YStack>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </Theme>
   );
 }

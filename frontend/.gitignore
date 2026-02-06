@@ -9,8 +9,6 @@ dist/
 web-build/
 expo-env.d.ts
 
-pnpm-lock.yaml
-
 # Native
 .kotlin/
 *.orig.*
@@ -37,6 +35,8 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+
+app-example
 
 # generated native folders
 /ios
