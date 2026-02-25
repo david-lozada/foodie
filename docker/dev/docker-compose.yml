@@ -1,18 +1,15 @@
 version: "3.8"
 
-# This file is for local development.
-# For more specific configurations, see the /docker folder.
-
 services:
   frontend:
     build:
-      context: ./frontend
+      context: ../../frontend
       dockerfile: Dockerfile.dev
     container_name: foodie-frontend-dev
     ports:
       - "3000:3000"
     volumes:
-      - ./frontend:/app
+      - ../../frontend:/app
       - /app/node_modules
     environment:
       - NODE_ENV=development
@@ -21,7 +18,7 @@ services:
 
   backend:
     build:
-      context: ./backend
+      context: ../../backend
       dockerfile: Dockerfile.dev
     container_name: foodie-api-dev
     ports:
@@ -36,7 +33,7 @@ services:
       - BCRYPT_ROUNDS=10
       - REDIS_URL=redis://redis:6379
     volumes:
-      - ./backend:/app
+      - ../../backend:/app
       - /app/node_modules
     depends_on:
       mongodb:
