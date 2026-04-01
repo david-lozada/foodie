@@ -3,17 +3,21 @@ import { Document, Types } from 'mongoose';
 
 export type ReservationDocument = Reservation & Document;
 
-export enum ReservationStatus {
-  PENDING = 'pending',
-  CONFIRMED = 'confirmed',
-  CANCELLED = 'cancelled',
-  COMPLETED = 'completed',
-}
+export const ReservationStatus = {
+  PENDING: 'pending',
+  CONFIRMED: 'confirmed',
+  CANCELLED: 'cancelled',
+  COMPLETED: 'completed',
+} as const;
 
-export enum ReservationType {
-  TABLE = 'table',
-  RESTAURANT = 'restaurant',
-}
+export type ReservationStatus = (typeof ReservationStatus)[keyof typeof ReservationStatus];
+
+export const ReservationType = {
+  TABLE: 'table',
+  RESTAURANT: 'restaurant',
+} as const;
+
+export type ReservationType = (typeof ReservationType)[keyof typeof ReservationType];
 
 @Schema({ timestamps: true })
 export class Reservation {
@@ -35,7 +39,7 @@ export class Reservation {
   @Prop({ required: true })
   numberOfPeople: number;
 
-  @Prop({ required: true, enum: ReservationType, default: ReservationType.TABLE })
+  @Prop({ required: true, enum: Object.values(ReservationType), default: ReservationType.TABLE })
   type: ReservationType;
 
   @Prop()
@@ -44,7 +48,7 @@ export class Reservation {
   @Prop({ type: Types.ObjectId, ref: 'Order' })
   orderId?: Types.ObjectId;
 
-  @Prop({ required: true, enum: ReservationStatus, default: ReservationStatus.PENDING })
+  @Prop({ required: true, enum: Object.values(ReservationStatus), default: ReservationStatus.PENDING })
   status: ReservationStatus;
 
   @Prop()

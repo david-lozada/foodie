@@ -13,7 +13,7 @@ export class PosService {
     private inventoryService: InventoryService,
   ) {}
 
-  async createProduct(tenantId: string, data: any) {
+  async createProduct(tenantId: string, data: Partial<Product>) {
     const product = new this.productModel({ tenantId, ...data });
     return product.save();
   }
@@ -22,7 +22,27 @@ export class PosService {
     return this.productModel.find({ tenantId }).exec();
   }
 
-  async createOrder(tenantId: string, items: { productId: string; quantity: number; notes?: string }[]) {
+  async updateProduct(tenantId: string, id: string, data: Partial<Product>) {
+    const product = await this.productModel.findOneAndUpdate(
+      { _id: id, tenantId },
+      { $set: data },
+      { new: true }
+    ).exec();
+    if (!product) throw new NotFoundException('Product not found');
+    return product;
+  }
+
+  async deleteProduct(tenantId: string, id: string) {
+    const result = await this.productModel.deleteOne({ _id: id, tenantId }).exec();
+    if (result.deletedCount === 0) throw new NotFoundException('Product not found');
+    return { success: true };
+  }
+
+  async createOrder(
+    tenantId: string,
+    items: { productId: string; quantity: number; notes?: string; modifiers?: string[] }[],
+    tableNumber?: number,
+  ) {
     const productIds = items.map((item) => item.productId);
     const products = await this.productModel.find({ _id: { $in: productIds }, tenantId }).exec();
 
@@ -52,6 +72,7 @@ export class PosService {
         notes: item.notes,
         name: product.name,
         price: product.price,
+        modifiers: item.modifiers || [],
       };
     });
 
@@ -59,6 +80,7 @@ export class PosService {
       tenantId,
       items: orderItems,
       total,
+      tableNumber,
       status: OrderStatus.PENDING,
     });
 
@@ -69,5 +91,9 @@ export class PosService {
     }
 
     return order;
+  }
+
+  async getOrders(tenantId: string) {
+    return this.orderModel.find({ tenantId }).sort({ createdAt: -1 }).exec();
   }
 }

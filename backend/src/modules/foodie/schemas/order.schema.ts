@@ -3,12 +3,14 @@ import { Document, Types } from 'mongoose';
 
 export type OrderDocument = Order & Document;
 
-export enum OrderStatus {
-  PENDING = 'pending',
-  PREPARING = 'preparing',
-  READY = 'ready',
-  FINISHED = 'finished',
-}
+export const OrderStatus = {
+  PENDING: 'pending',
+  PREPARING: 'preparing',
+  READY: 'ready',
+  FINISHED: 'finished',
+} as const;
+
+export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus];
 
 @Schema({ _id: false })
 export class OrderItem {
@@ -26,6 +28,9 @@ export class OrderItem {
 
   @Prop({ required: true, default: 0 })
   price: number;
+
+  @Prop({ type: [String], default: [] })
+  modifiers: string[];
 }
 export const OrderItemSchema = SchemaFactory.createForClass(OrderItem);
 
@@ -37,12 +42,16 @@ export class Order {
   @Prop({ type: [OrderItemSchema], default: [] })
   items: OrderItem[];
 
-  @Prop({ required: true, enum: OrderStatus, default: OrderStatus.PENDING })
+  @Prop({ required: true, enum: Object.values(OrderStatus), default: OrderStatus.PENDING })
   status: OrderStatus;
 
   @Prop({ required: true, default: 0 })
   total: number;
+
+  @Prop()
+  tableNumber?: number;
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);
 OrderSchema.index({ tenantId: 1, status: 1 });
+OrderSchema.index({ tenantId: 1, createdAt: -1 });

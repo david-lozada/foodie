@@ -8,12 +8,24 @@ class ApiClient {
   private token: string | null = null;
   private tenantId: string = 'system'; // Default to system for bootstrap/admin
 
+  constructor() {
+    if (typeof localStorage !== 'undefined') {
+      this.token = localStorage.getItem('auth_token');
+    }
+  }
+
   setToken(token: string) {
     this.token = token;
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('auth_token', token);
+    }
   }
 
   setTenantId(id: string) {
     this.tenantId = id;
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('tenant_id', id);
+    }
   }
 
   async request(endpoint: string, options: RequestInit = {}) {

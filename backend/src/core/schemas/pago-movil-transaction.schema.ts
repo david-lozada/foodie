@@ -3,13 +3,15 @@ import { Document, Types } from 'mongoose';
 
 export type PagoMovilTransactionDocument = PagoMovilTransaction & Document;
 
-export enum PagoMovilStatus {
-  PENDING = 'pending',
-  UNDER_REVIEW = 'under_review',
-  APPROVED = 'approved',
-  REJECTED = 'rejected',
-  EXPIRED = 'expired',
-}
+export const PagoMovilStatus = {
+  PENDING: 'pending',
+  UNDER_REVIEW: 'under_review',
+  APPROVED: 'approved',
+  REJECTED: 'rejected',
+  EXPIRED: 'expired',
+} as const;
+
+export type PagoMovilStatus = (typeof PagoMovilStatus)[keyof typeof PagoMovilStatus];
 
 @Schema({ timestamps: true })
 export class PagoMovilTransaction {
@@ -39,7 +41,7 @@ export class PagoMovilTransaction {
 
   @Prop({
     required: true,
-    enum: PagoMovilStatus,
+    enum: Object.values(PagoMovilStatus),
     default: PagoMovilStatus.PENDING,
   })
   status: PagoMovilStatus;

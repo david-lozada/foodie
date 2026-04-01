@@ -15,6 +15,7 @@ import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { GourmetColors, GourmetRadii } from "@/constants/gourmet-theme";
+import { authApi } from "@/api/auth";
 
 export default function GourmetLoginScreen() {
   const router = useRouter();
@@ -52,10 +53,18 @@ export default function GourmetLoginScreen() {
     }
     setErrors({});
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      // Use the actual API call
+      await authApi.login(email, password);
       router.replace("/(dashboard)/pos" as any);
-    }, 1800);
+    } catch (error: any) {
+      console.error("Login failed:", error);
+      setErrors({ 
+        general: error.response?.data?.message || "Invalid credentials. Please try again." 
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

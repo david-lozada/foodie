@@ -487,15 +487,15 @@ export default function POSScreen() {
     try {
       setLoading(true);
       const data = await posApi.getProducts();
-      // Map backend Product to frontend MenuItem
       const mapped = data.map((p: any) => ({
         id: p._id,
         name: p.name,
         price: p.price,
-        category: "Mains" as any, // backend doesn't have category yet
-        emoji: "🍲",
-        description: "Freshly prepared dish",
-        available: true,
+        category: p.category || "Mains",
+        emoji: p.emoji || "🍲",
+        description: p.description || "",
+        available: p.isAvailable !== false,
+        modifiers: p.modifiers || [],
       }));
       setMenuItems(mapped);
     } catch (error) {
@@ -546,8 +546,9 @@ export default function POSScreen() {
         productId: item.id,
         quantity: item.quantity,
         notes: "",
+        modifiers: item.selectedModifiers || [],
       }));
-      await posApi.createOrder(orderItems);
+      await posApi.createOrder(orderItems, selectedTable?.number);
       setCart([]);
       setCartVisible(false);
       setView("tables");

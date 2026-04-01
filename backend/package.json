@@ -17,7 +17,7 @@
     "docker:prod:build": "docker-compose -f docker/prod/docker-compose.yml --env-file .env.prod up --build",
     "docker:prod:down": "docker-compose -f docker/prod/docker-compose.yml down",
     "bootstrap:admin": "ts-node src/cli.ts",
-    "bootstrap:admin:docker": "docker-compose -f docker/dev/docker-compose.yml exec api pnpm run bootstrap:admin",
+    "bootstrap:admin:docker": "docker compose exec backend pnpm run bootstrap:admin",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",

@@ -9,13 +9,17 @@ export class InventoryService {
     @InjectModel(InventoryItem.name) private inventoryModel: Model<InventoryItemDocument>,
   ) {}
 
-  async create(tenantId: string, name: string, stock: number, unit: string) {
-    const item = new this.inventoryModel({ tenantId, name, stock, unit });
+  async create(tenantId: string, data: Partial<InventoryItem>) {
+    const item = new this.inventoryModel({ tenantId, ...data });
     return item.save();
   }
 
   async findAll(tenantId: string) {
     return this.inventoryModel.find({ tenantId }).exec();
+  }
+
+  async findOne(tenantId: string, id: string) {
+    return this.inventoryModel.findOne({ _id: id, tenantId }).exec();
   }
 
   async decrementStock(tenantId: string, updates: { ingredientId: Types.ObjectId | string; quantity: number }[]) {
@@ -37,5 +41,9 @@ export class InventoryService {
       { $set: updates },
       { new: true }
     ).exec();
+  }
+
+  async delete(tenantId: string, id: string) {
+    return this.inventoryModel.deleteOne({ _id: id, tenantId }).exec();
   }
 }

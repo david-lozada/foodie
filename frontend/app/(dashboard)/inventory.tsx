@@ -432,21 +432,30 @@ export default function InventoryScreen() {
     fetchInventory();
   }, []);
 
+  const getRelativeTime = (dateStr: string) => {
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return "Just now";
+    if (mins < 60) return `${mins}m ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours}h ago`;
+    return `${Math.floor(hours / 24)}d ago`;
+  };
+
   const fetchInventory = async () => {
     try {
       setLoading(true);
       const data = await inventoryApi.getItems();
-      // Map backend schema to frontend InventoryItem
       const mapped = data.map((item: any) => ({
         id: item._id,
         name: item.name,
-        category: "Produce" as any, // backend doesn't have category yet
+        category: item.category || "Produce",
         unit: item.unit,
         currentStock: item.stock,
-        minStock: 5, // default
-        maxStock: 20, // default
-        emoji: "📦", // default
-        lastUpdated: "Now",
+        minStock: item.minStock ?? 5,
+        maxStock: item.maxStock ?? 20,
+        emoji: item.emoji || "📦",
+        lastUpdated: item.updatedAt ? getRelativeTime(item.updatedAt) : "Now",
         outOfStock: item.stock <= 0,
       }));
       setInventory(mapped);
@@ -468,7 +477,7 @@ export default function InventoryScreen() {
 
   const markOut = useCallback(async (id: string) => {
     try {
-      await inventoryApi.updateItem(id, { stock: 0, outOfStock: true });
+      await inventoryApi.updateItem(id, { stock: 0 });
       setInventory((prev) =>
         prev.map((i) =>
           i.id === id ? { ...i, outOfStock: true, currentStock: 0 } : i,
@@ -481,7 +490,7 @@ export default function InventoryScreen() {
 
   const adjustStock = useCallback(async (id: string, qty: number) => {
     try {
-      await inventoryApi.updateItem(id, { stock: qty, outOfStock: qty === 0 });
+      await inventoryApi.updateItem(id, { stock: qty });
       setInventory((prev) =>
         prev.map((i) =>
           i.id === id

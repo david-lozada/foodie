@@ -392,12 +392,14 @@ export default function KDSScreen() {
       const data = await kdsApi.getActiveOrders();
       const mapped: KDSOrder[] = data.map((o: any) => ({
         id: o._id,
-        tableNumber: 1, // backend doesn't have table yet
+        tableNumber: o.tableNumber || 0,
         status: o.status.toLowerCase() === 'preparing' ? 'cooking' : o.status.toLowerCase(),
         items: o.items.map((i: any) => ({
           name: i.name,
           quantity: i.quantity,
-          modifiers: i.notes ? [i.notes] : [],
+          modifiers: i.modifiers && i.modifiers.length > 0
+            ? i.modifiers
+            : i.notes ? [i.notes] : [],
         })),
         createdAt: new Date(o.createdAt),
         priority: 1,
