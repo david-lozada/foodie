@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import { io } from "socket.io-client";
 import { GourmetColors, GourmetRadii } from "@/constants/gourmet-theme";
 import { kdsApi } from "@/api/kds";
 
@@ -374,6 +375,7 @@ function OrderCard({
   );
 }
 
+
 // ─── Main KDS Screen ──────────────────────────────────────────────────────────
 
 export default function KDSScreen() {
@@ -383,8 +385,34 @@ export default function KDSScreen() {
 
   useEffect(() => {
     fetchOrders();
-    const interval = setInterval(fetchOrders, 10000); // Poll every 10s
-    return () => clearInterval(interval);
+
+    // Initialize real-time connection
+    const tenantId = typeof localStorage !== 'undefined' ? localStorage.getItem('tenant_id') : 'system';
+    const socket = io('http://localhost:5000/kds', {
+      query: { tenantId }
+    });
+
+    socket.on('connect', () => {
+      console.log('🟢 KDS Connected to real-time server');
+    });
+
+    socket.on('ORDER_UPDATED', (updatedOrder) => {
+      console.log('⚡ Order update received via socket:', updatedOrder._id);
+      // For the most robust experience, we re-fetch the latest state
+      fetchOrders();
+    });
+
+    socket.on('disconnect', () => {
+      console.log('🔴 KDS Disconnected from real-time server');
+    });
+
+    // Still keep a low-frequency poll (60s) as a hard fallback for stale tabs
+    const interval = setInterval(fetchOrders, 60000); 
+    
+    return () => {
+      socket.disconnect();
+      clearInterval(interval);
+    };
   }, []);
 
   const fetchOrders = async () => {

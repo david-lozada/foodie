@@ -14,6 +14,7 @@ services:
       - /app/node_modules
     environment:
       - NODE_ENV=development
+      - NODE_OPTIONS=--max-old-space-size=4096
     networks:
       - foodie-dev-network
 
@@ -26,6 +27,7 @@ services:
       - "5000:3000"
     environment:
       - NODE_ENV=development
+      - NODE_OPTIONS=--max-old-space-size=2048
       - PORT=3000
       - HOST=0.0.0.0
       - MONGODB_URI=mongodb://mongodb:27017/foodie_dev

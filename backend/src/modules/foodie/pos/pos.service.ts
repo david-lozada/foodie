@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { Product, ProductDocument } from '../schemas/product.schema';
 import { Order, OrderDocument, OrderStatus } from '../schemas/order.schema';
 import { InventoryService } from '../inventory/inventory.service';
+import { KdsGateway } from '../kds/kds.gateway';
 
 @Injectable()
 export class PosService {
@@ -11,6 +12,7 @@ export class PosService {
     @InjectModel(Product.name) private productModel: Model<ProductDocument>,
     @InjectModel(Order.name) private orderModel: Model<OrderDocument>,
     private inventoryService: InventoryService,
+    private kdsGateway: KdsGateway,
   ) {}
 
   async createProduct(tenantId: string, data: Partial<Product>) {
@@ -85,6 +87,7 @@ export class PosService {
     });
 
     await order.save();
+    this.kdsGateway.emitOrderUpdate(tenantId, order);
 
     if (inventoryUpdates.length > 0) {
       await this.inventoryService.decrementStock(tenantId, inventoryUpdates);

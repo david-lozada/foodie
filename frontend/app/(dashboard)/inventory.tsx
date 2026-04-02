@@ -15,6 +15,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { GourmetColors, GourmetRadii } from "@/constants/gourmet-theme";
 import { inventoryApi } from "@/api/inventory";
+import { tenantApi } from "@/api/tenant";
+import { aiApi } from "@/api/ai";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const IS_TABLET = SCREEN_WIDTH >= 768;
@@ -420,6 +422,7 @@ function AdjustModal({
 
 // ─── Main Inventory Screen ────────────────────────────────────────────────────
 
+
 export default function InventoryScreen() {
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -427,6 +430,11 @@ export default function InventoryScreen() {
   const [search, setSearch] = useState("");
   const [adjustItem, setAdjustItem] = useState<InventoryItem | null>(null);
   const [showCreate, setShowCreate] = useState(false);
+  const [scanning, setScanning] = useState(false);
+
+  const handleAiScan = async () => {
+    alert("AI Scan: In a live device, this would open the camera and use OpenAI Vision to parse your invoice automatically.");
+  };
 
   useEffect(() => {
     fetchInventory();
@@ -551,13 +559,26 @@ export default function InventoryScreen() {
               </Text>
             </View>
           </View>
-          <TouchableOpacity style={styles.addNewBtn} onPress={() => setShowCreate(true)}>
-            <Ionicons
-              name="add"
-              size={20}
-              color={GourmetColors.accent.emerald}
-            />
-          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            <TouchableOpacity 
+              style={[styles.addNewBtn, { backgroundColor: 'rgba(59,130,246,0.1)', borderColor: 'rgba(59,130,246,0.2)' }]} 
+              onPress={handleAiScan}
+              testID="ai-scan-btn"
+            >
+              <Ionicons
+                name="sparkles"
+                size={18}
+                color={GourmetColors.accent.blue}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.addNewBtn} onPress={() => setShowCreate(true)}>
+              <Ionicons
+                name="add"
+                size={20}
+                color={GourmetColors.accent.emerald}
+              />
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Alert summary */}

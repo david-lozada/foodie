@@ -48,6 +48,19 @@ export class TenantRepository extends BaseRepository<TenantDocument> {
       .lean();
   }
 
+  async patchSettings(idOrSlug: string, settings: Partial<Tenant['settings']>): Promise<TenantDocument | null> {
+    const updateOps: any = {};
+    Object.keys(settings).forEach(key => {
+      updateOps[`settings.${key}`] = settings[key as keyof Tenant['settings']];
+    });
+
+    return this.entityModel.findOneAndUpdate(
+      { $or: [{ _id: idOrSlug }, { slug: idOrSlug }] },
+      { $set: updateOps },
+      { new: true }
+    ).exec();
+  }
+
   async findByIdAndUpdate(
     id: string,
     updateData: UpdateQuery<Tenant>,

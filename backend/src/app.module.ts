@@ -14,6 +14,7 @@ import { TenantModule } from './core/tenant/tenant.module';
 import { envValidationSchema } from './core/config/env.validation';
 import { SubscriptionModule } from './core/subscription/subscription.module';
 import { FoodieModule } from './modules/foodie/foodie.module';
+import { AiModule } from './modules/ai/ai.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { FoodieModule } from './modules/foodie/foodie.module';
     TenantModule,
     SubscriptionModule,
     FoodieModule,
+    AiModule,
   ],
 
   controllers: [],

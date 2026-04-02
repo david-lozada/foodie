@@ -5,6 +5,7 @@ import { PosService } from './pos.service';
 import { Product, ProductSchema } from '../schemas/product.schema';
 import { Order, OrderSchema } from '../schemas/order.schema';
 import { InventoryModule } from '../inventory/inventory.module';
+import { KdsModule } from '../kds/kds.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { InventoryModule } from '../inventory/inventory.module';
       { name: Order.name, schema: OrderSchema },
     ]),
     InventoryModule,
+    KdsModule,
   ],
   controllers: [PosController],
   providers: [PosService],

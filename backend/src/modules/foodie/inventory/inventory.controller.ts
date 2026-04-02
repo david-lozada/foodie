@@ -53,7 +53,7 @@ export class InventoryController {
       maxStock?: number;
       cost?: number;
     }
-  ) {
+  ): Promise<any> {
     return this.inventoryService.update(context.tenantId, id, dto as any);
   }
 
@@ -61,7 +61,7 @@ export class InventoryController {
   async deleteItem(
     @TenantContext() context: TenantContextDto,
     @Param('id') id: string
-  ) {
+  ): Promise<any> {
     return this.inventoryService.delete(context.tenantId, id);
   }
 }

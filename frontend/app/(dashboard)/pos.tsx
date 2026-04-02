@@ -451,6 +451,7 @@ function CartPanel({
             onPress={onSend}
             disabled={!selectedTable}
             activeOpacity={0.85}
+            testID="send-to-kitchen-btn"
           >
             <LinearGradient
               colors={["#F97316", "#EA580C"]}

@@ -2,10 +2,14 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Order, OrderDocument, OrderStatus } from '../schemas/order.schema';
+import { KdsGateway } from './kds.gateway';
 
 @Injectable()
 export class KdsService {
-  constructor(@InjectModel(Order.name) private orderModel: Model<OrderDocument>) {}
+  constructor(
+    @InjectModel(Order.name) private orderModel: Model<OrderDocument>,
+    private kdsGateway: KdsGateway,
+  ) {}
 
   async getActiveOrders(tenantId: string) {
     return this.orderModel.find({
@@ -21,6 +25,9 @@ export class KdsService {
       { new: true }
     );
     if (!order) throw new NotFoundException('Order not found');
+    
+    this.kdsGateway.emitOrderUpdate(tenantId, order);
+    
     return order;
   }
 }

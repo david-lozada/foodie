@@ -5,13 +5,34 @@ import {
   NotFoundException,
   Query,
   BadRequestException,
+  Patch,
+  Body,
+  UseGuards,
 } from '@nestjs/common';
 import { TenantRepository } from './repositories/tenant.repository';
 import { Public } from '../auth/decorators/public.decorator';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { ROLES } from '../common/constants/roles';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { TenantContext } from '../auth/decorators/tenant-context.decorator';
+import { TenantContextDto } from '../auth/dto';
+import { Tenant } from '../schemas/tenant.schema';
 
 @Controller('tenants')
 export class TenantController {
   constructor(private tenantRepository: TenantRepository) {}
+
+  @Patch('settings')
+  @UseGuards(RolesGuard)
+  @Roles(ROLES.ADMIN, ROLES.SUPERADMIN)
+  async updateSettings(
+    @TenantContext() context: TenantContextDto,
+    @Body() settings: Partial<Tenant['settings']>
+  ) {
+    const updated = await this.tenantRepository.patchSettings(context.slug, settings);
+    if (!updated) throw new NotFoundException('Tenant not found');
+    return updated.settings;
+  }
 
   @Public()
   @Get('verify/:slug')

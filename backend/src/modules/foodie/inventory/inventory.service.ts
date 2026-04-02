@@ -35,7 +35,7 @@ export class InventoryService {
     }
   }
 
-  async update(tenantId: string, id: string, updates: Partial<InventoryItem>) {
+  async update(tenantId: string, id: string, updates: Partial<InventoryItem>): Promise<any> {
     return this.inventoryModel.findOneAndUpdate(
       { _id: id, tenantId },
       { $set: updates },
@@ -43,7 +43,7 @@ export class InventoryService {
     ).exec();
   }
 
-  async delete(tenantId: string, id: string) {
+  async delete(tenantId: string, id: string): Promise<any> {
     return this.inventoryModel.deleteOne({ _id: id, tenantId }).exec();
   }
 }

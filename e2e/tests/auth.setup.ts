@@ -11,9 +11,9 @@ setup('authenticate', async ({ page }) => {
   // Navigate to root to initialize local storage
   await page.goto('/');
   
-  const loginResponse = await page.evaluate(async ({ email, password }) => {
+  const loginResponse = await page.evaluate(async ({ email, password, baseURL }) => {
     // We can call the backend directly from the browser context
-    const resp = await fetch('http://localhost:5000/auth/super-admin/login', {
+    const resp = await fetch(`${baseURL.replace('3000', '5000')}/auth/super-admin/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -31,16 +31,18 @@ setup('authenticate', async ({ page }) => {
     
     // Store in localStorage as expected by the frontend apiClient
     localStorage.setItem('auth_token', data.accessToken);
+    localStorage.setItem('refresh_token', data.refreshToken);
     localStorage.setItem('tenant_id', 'system');
+    localStorage.setItem('restaurant_slug', 'system');
     
     return data;
-  }, { email, password });
-
-  console.log('Successfully authenticated via API');
+  }, { email, password, baseURL });
 
   // Verify successful injection by navigating to POS
-  await page.goto('/(dashboard)/pos');
-  await page.waitForURL('**/pos*', { timeout: 15000 });
+  await page.goto('/pos');
+  
+  // Wait for the Dashboard state to be active (system tenant context)
+  await expect(page.getByText('Tables', { exact: true })).toBeVisible({ timeout: 60000 });
 
   // End of authentication steps.
   await page.context().storageState({ path: authFile });

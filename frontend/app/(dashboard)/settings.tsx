@@ -12,6 +12,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { GourmetColors, GourmetRadii } from "@/constants/gourmet-theme";
 
+import { tenantApi } from "@/api/tenant";
+
 interface SettingRow {
   icon: keyof typeof Ionicons.glyphMap;
   label: string;
@@ -24,6 +26,47 @@ interface SettingRow {
 
 export default function SettingsScreen() {
   const router = useRouter();
+  const [loading, setLoading] = React.useState(true);
+  const [profile, setProfile] = React.useState({
+    name: "Loading...",
+    slug: "",
+    themeColor: GourmetColors.status.free,
+  });
+
+  React.useEffect(() => {
+    loadSettings();
+  }, []);
+
+  const loadSettings = async () => {
+    try {
+      const tenantId = typeof localStorage !== 'undefined' ? localStorage.getItem('tenant_id') : 'system';
+      if (!tenantId) return;
+
+      const data = await tenantApi.verifyTenant(tenantId);
+      setProfile({
+        name: data.name,
+        slug: data.slug,
+        themeColor: data.themeColor || GourmetColors.status.free,
+      });
+    } catch (error) {
+      console.error("Failed to load settings:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdateName = async () => {
+    const newName = prompt("Enter new restaurant name:", profile.name);
+    if (newName && newName !== profile.name) {
+      try {
+        await tenantApi.updateSettings({ name: newName });
+        setProfile(p => ({ ...p, name: newName }));
+        alert("Settings updated successfully!");
+      } catch (err) {
+        alert("Failed to update settings: " + err.message);
+      }
+    }
+  };
 
   const sections: { title: string; rows: SettingRow[] }[] = [
     {
@@ -125,13 +168,17 @@ export default function SettingsScreen() {
       <View style={styles.header}>
         <View style={styles.profileRow}>
           <LinearGradient colors={["#10B981", "#059669"]} style={styles.avatar}>
-            <Text style={styles.avatarText}>GF</Text>
+            <Text style={styles.avatarText}>{profile.name.substring(0, 2).toUpperCase()}</Text>
           </LinearGradient>
           <View>
-            <Text style={styles.restaurantName}>La Belle Maison</Text>
-            <Text style={styles.slug}>labelle.gourmetflow.app</Text>
+            <Text style={styles.restaurantName}>{profile.name}</Text>
+            <Text style={styles.slug}>{profile.slug}.gourmetflow.app</Text>
           </View>
-          <TouchableOpacity style={styles.editProfile}>
+          <TouchableOpacity 
+            style={styles.editProfile}
+            onPress={handleUpdateName}
+            testID="edit-restaurant-btn"
+          >
             <Ionicons
               name="pencil"
               size={16}
